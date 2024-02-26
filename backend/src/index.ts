@@ -1,6 +1,9 @@
 import express from 'express';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
+import { createDatabaseConnection } from './database';
+import { UserResolver} from './resolvers/userResolver';
+import { buildSchema } from 'type-graphql';
 
 async function startServer() {
   const app = express();
@@ -11,19 +14,9 @@ async function startServer() {
 
   // Create an ApolloServer
   const server = new ApolloServer({
-    typeDefs: `
-      type Query {
-        hello: String
-        sayHello(name: String!): String
-      }
-    
-    `,
-    resolvers: {
-      Query: {
-        hello: () => 'Hello from Apollo Server',
-        sayHello: (_, { name }) => `Hello ${name}, How are you?`,
-      },
-    },
+    schema: await buildSchema({
+      resolvers: [UserResolver],
+    })
   });
 
   //Start the server
@@ -40,3 +33,4 @@ async function startServer() {
 }
 
 startServer();
+createDatabaseConnection();
